@@ -16,7 +16,9 @@ import sys
 # restrictions they may place on your use of the model. https://gpt4all.io/ is a good 
 # place to start looking. https://huggingface.co/TheBloke is another. At the time of
 # writing, GPT4All works best with GGML models quantized down to the q4_0 level, but will
-# work (slowly) with finer models up to the q8 level.  
+# work (slowly) with finer models up to the q8 level.  The GPT4All desktop application is
+# a very convenient way to "test drive" models before deciding which is best for your
+# use case.
 model = GPT4All(model_path = ".", model_name = 'airoboros-l2-7b-gpt4-m2.0.ggmlv3.q4_0.bin')
 
 # Your model will interact according to two key patterns: the system prompt and the user 
