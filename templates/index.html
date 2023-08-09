@@ -96,7 +96,7 @@
        var micEmoji = '\u{1F399}';
        var earEmoji = '\u{1F442}';
        createWebSocket = function(firstMessage) {
-           var ws = new WebSocket("wss://"+location.host+"/gpt-socket");
+           var ws = new WebSocket("ws://"+location.host+"/gpt-socket");
            var conversationStarter = firstMessage;
            ws.onopen = function() {
                if(conversationStarter) {
