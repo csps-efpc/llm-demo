@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+
+    <style>
+ @import url('https://fonts.cdnfonts.com/css/noto-sans');
+
+ body {
+    font-family: 'Noto Sans', sans-serif;
+    background-color: #f5f5f5 ;
+    # overflow-y: scroll;
+    margin: 0px;
+  }
+
+ .user {
+
+    background-color: #e8ebfa;
+    align-items: left;
+    border: 0px solid;
+    margin-bottom: 3rem;
+    margin-right: 17rem;
+    margin-left: 2rem;
+    border-radius: 25px;
+    padding: 5px 25px 5px;
+
+  }
+
+  .bot {
+
+    background-color: #ffffff;
+    color: black;
+    border: 0px solid;
+    align-items: right;
+    margin-bottom: 3rem;
+    margin-right: 2rem;
+    margin-left: 17rem;
+    border-radius: 25px;
+    padding: 5px 25px 5px;
+
+  }
+
+  #dialogue {
+    position: absolute;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    bottom: 3rem;
+    overflow-y: scroll;
+  }
+
+  .input {
+    border: 0px solid;
+    border-radius: 25px;
+    padding: 5px 25px 5px;
+    margin-left: 2rem;  
+    margin-bottom: 1rem;
+    display: block;
+    overflow: hidden;
+    width:100%;
+  }
+
+  .footer {
+    display: block;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    z-index: 10;
+  }
+
+  .footer-span {
+    display: block;
+    padding-right: 10rem;
+    overflow: hidden;
+  }
+
+  .config-span {
+    display: block;
+    float: right;
+    margin: 0.5rem;
+  }
+
+    </style>
+
+    <script type="text/javascript">
+       var socket = null;
+       var tokenElement = null;
+       var outputElement = null;
+       var currentAudio = null;
+       var thinkerElement = null;
+       var speechAccumulator = "";
+       var micEmoji = '\u{1F399}';
+       var earEmoji = '\u{1F442}';
+       createWebSocket = function(firstMessage) {
+           var ws = new WebSocket("wss://"+location.host+"/gpt-socket");
+           var conversationStarter = firstMessage;
+           ws.onopen = function() {
+               if(conversationStarter) {
+                   ws.send(conversationStarter);
+               }
+           };
+           ws.onclose = function(evt) {
+               document.getElementById('dialogue').append(document.createElement('hr'));
+           };
+           ws.onmessage = function(evt) {
+               var newElement = null;
+               if(evt.data == "\n") {
+                   newElement = document.createElement('br');
+               } else if (evt.data == "<END>"){
+                   newElement = document.createElement('br');
+                   // Do any UI work that marks the end of the interaction here.
+               } else {
+                   newElement = document.createTextNode(evt.data);
+               }
+               outputElement.append(newElement);
+               if(thinkerElement.parentElement) {
+                   thinkerElement.parentElement.removeChild(thinkerElement);
+               }
+               outputElement.scrollIntoView(false);
+           };
+           return ws;
+       }
+       sendPrompt = function() {
+           var promptElement = document.getElementById('prompt');
+           var dialogueElement = document.getElementById('dialogue');
+           var userTextElement = document.createElement('div');
+           userTextElement.classList.add('user');
+           userTextElement.classList.add('animate__animated');
+           userTextElement.classList.add('animate__fadeInUp');
+           userTextElement.textContent = promptElement.value;
+           dialogueElement.append(userTextElement);
+           outputElement = document.createElement('div');
+           outputElement.classList.add('bot');
+           dialogueElement.append(outputElement);
+           outputElement.classList.add('animate__animated');
+           outputElement.classList.add('animate__fadeIn');
+           outputElement.classList.add('animate__delay-2s');
+           outputElement.append(thinkerElement);
+           if(socket.readyState == 1) {
+               socket.send(promptElement.value);
+           } else {
+               socket = createWebSocket(promptElement.value)
+           }
+           promptElement.value = '';
+           userTextElement.scrollIntoView(false);
+       }
+
+       socket = createWebSocket();
+    </script>
+  </head>
+
+
+  <body>
+
+<div class="footer"><span class="config-span"><span class="footer-span">
+<input type="text" class="input" id="prompt" />
+</span></div>
+<hr/>
+<div id="dialogue"/>
+<div id="thinker">&#x1F914;</div>
+<script type="text/javascript">
+
+// Bind the "enter" keystroke.
+var input = document.getElementById("prompt");
+
+input.addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    sendPrompt();
+  }
+});
+input.focus();
+thinkerElement = document.getElementById("thinker");
+thinkerElement.parentElement.removeChild(thinkerElement);
+</script>
+</body>
+</html>
+
